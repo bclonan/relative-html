@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Splitscreen Layout</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      header {
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 10;
+      }
+
+      .wrapper {
+        display: flex;
+        height: calc(100% - 50px);
+        margin-top: 50px;
+      }
+
+      .left,
+      .right {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .left {
+        background-color: #ccc;
+      }
+
+      .test-form,
+      .right .container pre {
+        width: 80%;
+        max-width: 500px;
+      }
+
+      .container {
+        width: 100%;
+        max-height: 300px;
+        overflow: scroll;
+      }
+
+      .buttons button {
+        padding: 10px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        cursor: pointer;
+      }
+
+      .right .buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .buttons {
+        text-align: center;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span id="currentTime">12:00:00 PM</span>
+      <span>Welcome!</span>
+    </header>
+    <div class="wrapper">
+      <div class="left">
+        <form class="test-form">
+          <label for="text">Text:</label>
+          <input type="text" id="text" name="text" /><br /><br />
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" /><br /><br />
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" /><br /><br />
+          <label for="date">Date:</label>
+          <input type="date" id="date" name="date" /><br /><br />
+          <label for="number">Number:</label>
+          <input type="number" id="number" name="number" /><br /><br />
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+      <div class="right">
+        <div class="container">
+          <!-- JSON response will be displayed here as a scrollable list of items -->
+        </div>
+        <div class="buttons">
+          <button onclick="buttonClicked(1)">Button 1</button>
+          <button onclick="buttonClicked(2)">Button 2</button>
+          <button onclick="buttonClicked(3)">Button 3</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function buttonClicked(buttonNumber) {
+        console.log("Button " + buttonNumber + " clicked");
+
+        let response = await fetch(
+          `https://jsonplaceholder.typicode.com/todos/${buttonNumber}`
+        ).then((response) => response.json());
+
+        const container = document.querySelector(".container");
+        container.innerHTML = ""; // clear the container of previous content
+
+        const pre = document.createElement("pre");
+        pre.innerText = JSON.stringify(response, null, 2);
+        container.appendChild(pre);
+      }
+
+      function updateTime() {
+        const date = new Date();
+        const options = {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        };
+        document.getElementById("currentTime").innerText =
+          date.toLocaleTimeString("en-US", options);
+      }
+      setInterval(updateTime, 1000);
+
+      // URL Parameters Logging
+      window.addEventListener("popstate", function (event) {
+        logParameters(window.location.search);
+      });
+
+      function logParameters(queryString) {
+        if (!queryString) {
+          console.log("No parameters in the URL.");
+          return;
+        }
+        const urlParams = new URLSearchParams(queryString);
+        for (let [key, value] of urlParams) {
+          console.log(`${key}: ${value}`);
+        }
+      }
+
+      logParameters(window.location.search);
+
+      // Form Submission
+      const form = document.querySelector(".test-form");
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const data = {
+          text: text.value,
+          email: email.value,
+          password: password.value,
+          date: date.value,
+          number: number.value,
+        };
+        console.log(data);
+        this.querySelector("input[type=submit]").disabled = true;
+        setTimeout(
+          () => (this.querySelector("input[type=submit]").disabled = false),
+          2000
+        );
+      });
+    </script>
+  </body>
+</html>
